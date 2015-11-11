@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "HackTogether": {
+      "applicationId": "7CUhVjsEag7xUb6I7uCyuQ0GDXWMAkKQbvt3zWv3"
+    },
+    "_default": {
+      "link": "HackTogether"
+    }
+  }
+}
