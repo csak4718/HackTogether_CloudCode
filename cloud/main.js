@@ -16,3 +16,36 @@ Parse.Cloud.define("generateToken", function(request, response) {
     if (!nonce) throw new Error('Missing nonce parameter');
         response.success(layer.layerIdentityToken(userID, nonce));
 });
+
+Parse.Cloud.define("addGroupToInviteGroup", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var groupId = request.params.groupId;
+    var pendingMemberId = request.params.pendingMemberId;
+
+    var groupQuery = new Parse.Query(Parse.Object.extend("Group"));
+    groupQuery.get(groupId, {
+        success: function(group) {
+            var pendingMemberQuery = new Parse.Query(Parse.User);
+            pendingMemberQuery.get(pendingMemberId, {
+                success: function(pendingMember){
+                    var inviteGroups = pendingMember.relation("inviteGroups");
+                    inviteGroups.add(group);
+                    pendingMember.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                },
+                error: function(pendingMember, error){
+                    console.log("fail to get pendingMember");
+                }
+            });
+        },
+        error: function(group, error){
+            console.log("fail to get group");
+        }
+    });
+});
