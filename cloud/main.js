@@ -17,6 +17,60 @@ Parse.Cloud.define("generateToken", function(request, response) {
         response.success(layer.layerIdentityToken(userID, nonce));
 });
 
+Parse.Cloud.define("removeUnwantedGroupInterest", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var groupId = request.params.groupId;
+    var delete_groupInterestId = request.params.delete_groupInterestId;
+
+    var interestQuery = new Parse.Query(Parse.Object.extend("Interest"));
+    interestQuery.get(delete_groupInterestId, {
+        success: function(delete_groupInterest){
+            var groupQuery = new Parse.Query(Parse.Object.extend("Group"));
+            groupQuery.get(groupId, {
+                success: function(group){
+                    var groupInterests = group.relation("groupInterests");
+                    groupInterests.remove(delete_groupInterest);
+                    group.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUnwantedLookForSkill", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var groupId = request.params.groupId;
+    var delete_lookForSkillId = request.params.delete_lookForSkillId;
+
+    var skillQuery = new Parse.Query(Parse.Object.extend("Skill"));
+    skillQuery.get(delete_lookForSkillId, {
+        success: function(delete_lookForSkill){
+            var groupQuery = new Parse.Query(Parse.Object.extend("Group"));
+            groupQuery.get(groupId, {
+                success: function(group){
+                    var lookForSkills = group.relation("lookForSkills");
+                    lookForSkills.remove(delete_lookForSkill);
+                    group.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
 Parse.Cloud.define("addGroupToInviteGroup", function(request, response){
     Parse.Cloud.useMasterKey();
     var groupId = request.params.groupId;
