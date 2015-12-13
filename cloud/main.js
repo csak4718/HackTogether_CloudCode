@@ -17,6 +17,115 @@ Parse.Cloud.define("generateToken", function(request, response) {
         response.success(layer.layerIdentityToken(userID, nonce));
 });
 
+Parse.Cloud.define("removeUserFromInterestedHackers", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var interestId = request.params.interestId;
+    var delete_userId = request.params.delete_userId;
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.get(delete_userId, {
+        success: function(delete_user){
+            var interestQuery = new Parse.Query(Parse.Object.extend("Interest"));
+            interestQuery.get(interestId, {
+                success: function(interest){
+                    var interested_hackers = interest.relation("interested_hackers");
+                    interested_hackers.remove(delete_user);
+                    interest.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUserFromSkilledHackers", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var skillId = request.params.skillId;
+    var delete_userId = request.params.delete_userId;
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.get(delete_userId, {
+        success: function(delete_user){
+            var skillQuery = new Parse.Query(Parse.Object.extend("Skill"));
+            skillQuery.get(skillId, {
+                success: function(skill){
+                    var skilled_hackers = skill.relation("skilled_hackers");
+                    skilled_hackers.remove(delete_user);
+                    skill.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUserFromHackersNeedGuy", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var hackathonId = request.params.hackathonId;
+    var delete_userId = request.params.delete_userId;
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.get(delete_userId, {
+        success: function(delete_user){
+            var hackathonQuery = new Parse.Query(Parse.Object.extend("Hackathon"));
+            hackathonQuery.get(hackathonId, {
+                success: function(hackathon){
+                    var hackersNeedGuy = hackathon.relation("hackersNeedGuy");
+                    hackersNeedGuy.remove(delete_user);
+                    hackathon.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUserFromHackers", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var hackathonId = request.params.hackathonId;
+    var delete_userId = request.params.delete_userId;
+
+    var userQuery = new Parse.Query(Parse.User);
+    userQuery.get(delete_userId, {
+        success: function(delete_user){
+            var hackathonQuery = new Parse.Query(Parse.Object.extend("Hackathon"));
+            hackathonQuery.get(hackathonId, {
+                success: function(hackathon){
+                    var hackers = hackathon.relation("hackers");
+                    hackers.remove(delete_user);
+                    hackathon.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+
 Parse.Cloud.define("removeUnwantedMyHackathon", function(request, response){
     Parse.Cloud.useMasterKey();
     var userId = request.params.userId;
