@@ -17,6 +17,115 @@ Parse.Cloud.define("generateToken", function(request, response) {
         response.success(layer.layerIdentityToken(userID, nonce));
 });
 
+Parse.Cloud.define("removeUnwantedMyHackathon", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var userId = request.params.userId;
+    var delete_myHackathonId = request.params.delete_myHackathonId;
+
+    var hackathonQuery = new Parse.Query(Parse.Object.extend("Hackathon"));
+    hackathonQuery.get(delete_myHackathonId, {
+        success: function(delete_myHackathon){
+            var userQuery = new Parse.Query(Parse.User);
+            userQuery.get(userId, {
+                success: function(user){
+                    var myHackathons = user.relation("myHackathons");
+                    myHackathons.remove(delete_myHackathon);
+                    user.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUnwantedMyNeedGuyHackathon", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var userId = request.params.userId;
+    var delete_myNeedGuyHackathonId = request.params.delete_myNeedGuyHackathonId;
+
+    var hackathonQuery = new Parse.Query(Parse.Object.extend("Hackathon"));
+    hackathonQuery.get(delete_myNeedGuyHackathonId, {
+        success: function(delete_myNeedGuyHackathon){
+            var userQuery = new Parse.Query(Parse.User);
+            userQuery.get(userId, {
+                success: function(user){
+                    var myNeedGuyHackathons = user.relation("myNeedGuyHackathons");
+                    myNeedGuyHackathons.remove(delete_myNeedGuyHackathon);
+                    user.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUnwantedMyInterest", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var userId = request.params.userId;
+    var delete_myInterestId = request.params.delete_myInterestId;
+
+    var interestQuery = new Parse.Query(Parse.Object.extend("Interest"));
+    interestQuery.get(delete_myInterestId, {
+        success: function(delete_myInterest){
+            var userQuery = new Parse.Query(Parse.User);
+            userQuery.get(userId, {
+                success: function(user){
+                    var interests = user.relation("interests");
+                    interests.remove(delete_myInterest);
+                    user.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeUnwantedMySkill", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var userId = request.params.userId;
+    var delete_mySkillId = request.params.delete_mySkillId;
+
+    var skillQuery = new Parse.Query(Parse.Object.extend("Skill"));
+    skillQuery.get(delete_mySkillId, {
+        success: function(delete_mySkill){
+            var userQuery = new Parse.Query(Parse.User);
+            userQuery.get(userId, {
+                success: function(user){
+                    var skills = user.relation("skills");
+                    skills.remove(delete_mySkill);
+                    user.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+
 Parse.Cloud.define("removeUnwantedGroupInterest", function(request, response){
     Parse.Cloud.useMasterKey();
     var groupId = request.params.groupId;
