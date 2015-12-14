@@ -17,6 +17,60 @@ Parse.Cloud.define("generateToken", function(request, response) {
         response.success(layer.layerIdentityToken(userID, nonce));
 });
 
+Parse.Cloud.define("removeGroupFromInterestedGroups", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var interestId = request.params.interestId;
+    var delete_groupId = request.params.delete_groupId;
+
+    var groupQuery = new Parse.Query(Parse.Object.extend("Group"));
+    groupQuery.get(delete_groupId, {
+        success: function(delete_group){
+            var interestQuery = new Parse.Query(Parse.Object.extend("Interest"));
+            interestQuery.get(interestId, {
+                success: function(interest){
+                    var interested_groups = interest.relation("interested_groups");
+                    interested_groups.remove(delete_group);
+                    interest.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+Parse.Cloud.define("removeGroupFromLookForGroups", function(request, response){
+    Parse.Cloud.useMasterKey();
+    var skillId = request.params.skillId;
+    var delete_groupId = request.params.delete_groupId;
+
+    var groupQuery = new Parse.Query(Parse.Object.extend("Group"));
+    groupQuery.get(delete_groupId, {
+        success: function(delete_group){
+            var skillQuery = new Parse.Query(Parse.Object.extend("Skill"));
+            skillQuery.get(skillId, {
+                success: function(skill){
+                    var lookFor_groups = skill.relation("lookFor_groups");
+                    lookFor_groups.remove(delete_group);
+                    skill.save(null, {
+                        success: function(pendingMember){
+                            console.log("save success");
+                        },
+                        error: function(pendingMember, error){
+                            console.log("save failed");
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
 
 Parse.Cloud.define("removeUserFromInterestedHackers", function(request, response){
     Parse.Cloud.useMasterKey();
