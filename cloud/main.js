@@ -17,6 +17,7 @@ Parse.Cloud.define("generateToken", function(request, response) {
         response.success(layer.layerIdentityToken(userID, nonce));
 });
 
+
 Parse.Cloud.define("removeUserFromInterestedHackers", function(request, response){
     Parse.Cloud.useMasterKey();
     var interestId = request.params.interestId;
@@ -305,6 +306,8 @@ Parse.Cloud.define("addGroupToInviteGroup", function(request, response){
                     pendingMember.save(null, {
                         success: function(pendingMember){
                             console.log("save success");
+                            // TODO send invite notification to this pendingMember of this group
+                            sendInviteNotification(group.get("groupName"), pendingMember);
                         },
                         error: function(pendingMember, error){
                             console.log("save failed");
@@ -321,3 +324,79 @@ Parse.Cloud.define("addGroupToInviteGroup", function(request, response){
         }
     });
 });
+
+function sendInviteNotification(group_name, pendingMember) {
+    var pushQuery = new Parse.Query(Parse.Installation);
+    pushQuery.equalTo("user", pendingMember);
+    Parse.Push.send({
+        where: pushQuery,
+        data: {
+            uri: "hacktogether://groupManage/invitations",
+            title: "Group Invitation",
+            alert: group_name + " invites you to join"
+        }
+    });
+}
+
+
+Parse.Cloud.define("instantMessageNotification", function(request, response) {
+  Parse.Cloud.useMasterKey();
+  var senderId = request.params.senderId;
+  var recipientId = request.params.recipientId;
+  var textMessage = request.params.textMessage;
+  var conversationId = request.params.conversationId;
+  var isGroupChat = request.params.isGroupChat;
+
+  var senderQuery = new Parse.Query(Parse.User);
+  senderQuery.get(senderId, {
+    success: function(sender){
+        var recipientQuery = new Parse.Query(Parse.User);
+        recipientQuery.get(recipientId, {
+            success: function(recipient) {
+                sendIMNotification(sender, recipient, conversationId, textMessage, isGroupChat); // snederId needs to change to conversation-id
+            }
+        });
+    }
+  });
+
+});
+
+function sendIMNotification(sender, recipient, conversationId, textMessage, isGroupChat) {
+    var pushQuery = new Parse.Query(Parse.Installation);
+    pushQuery.equalTo("user", recipient);
+    pushQuery.equalTo("inMessageActivity", false);
+    if (isGroupChat){
+      Parse.Push.send({
+          where: pushQuery,
+          data: {
+              title: "Group Chat",
+              uri: "hacktogether://im/" + conversationId,
+              alert: textMessage
+          }
+      }, {
+        success: function() {
+          // Push was successful
+        },
+        error: function(error) {
+          // Handle error
+        }
+      });
+  }
+  else{
+    Parse.Push.send({
+        where: pushQuery,
+        data: {
+            title: sender.get("nickname"),
+            uri: "hacktogether://im/" + conversationId,
+            alert: textMessage
+        }
+    }, {
+      success: function() {
+        // Push was successful
+      },
+      error: function(error) {
+        // Handle error
+      }
+    });
+  }
+}
